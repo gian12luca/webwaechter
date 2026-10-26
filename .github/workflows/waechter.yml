@@ -1,0 +1,45 @@
+name: Webwächter
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # kürzester Takt bei GitHub; Läufe kommen oft ein paar Minuten später
+  workflow_dispatch:        # von Hand starten (Actions → Webwächter → Run workflow)
+
+permissions:
+  contents: write           # Stand in state/ zurückschreiben
+
+concurrency:
+  group: webwaechter
+  cancel-in-progress: false
+
+jobs:
+  pruefen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Wächter laufen lassen
+        run: python3 waechter.py
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+
+      # Öffentliche Repos: GitHub schaltet geplante Workflows nach 60 Tagen ohne Repo-Aktivität ab.
+      # Darum einmal im Monat ein Lebenszeichen committen, falls sonst nichts passiert ist.
+      - name: Lebenszeichen
+        if: always()
+        run: |
+          alter=$(( $(date +%s) - $(git log -1 --format=%ct) ))
+          if [ "$alter" -gt 2592000 ]; then date -u +%F > state/lebenszeichen.txt; fi
+
+      - name: Stand sichern
+        if: always()
+        run: |
+          if [ -n "$(git status --porcelain state)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add state
+            git commit -m "Stand aktualisiert"
+            git pull --rebase
+            git push
+          fi

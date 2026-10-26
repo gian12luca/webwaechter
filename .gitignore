@@ -1,0 +1,6 @@
+.claude/settings.local.json
+# lokal: enthält Wiki-Anbindung und persönliche Angaben, Repo ist öffentlich
+CLAUDE.md
+.env
+__pycache__/
+.DS_Store

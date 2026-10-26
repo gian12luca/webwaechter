@@ -1,0 +1,17 @@
+{
+  "watches": [
+    {
+      "id": "freiburg-2027-halbmarathon",
+      "name": "Freiburg Marathon 2027 – Startplatzbörse Halbmarathon",
+      "titel": "Startplatz frei: Halbmarathon Freiburg",
+      "type": "raceresult-liste",
+      "event": 413679,
+      "page": "boerse",
+      "liste_id": "DF85F0",
+      "wettbewerb": "Halbmarathon",
+      "seite": "https://mein-freiburgmarathon.de/lauf/startplatzboerse/anmeldung/",
+      "tags": ["runner"],
+      "aktiv_bis": "2027-04-04"
+    }
+  ]
+}
