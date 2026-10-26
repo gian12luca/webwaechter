@@ -41,6 +41,12 @@ class RaceresultTest(unittest.TestCase):
         self.assertEqual([e["link"][-2:] for e in eintraege], ["20", "21"])
         self.assertNotIn("Vorname", str(eintraege))  # keine Personendaten im Stand
 
+    def test_ohne_filter_alles(self):
+        data = {"#1_Marathon": [zeile(10)], "#2_Halb-Marathon": [zeile(20)], "#5_Staffel": [zeile(50)]}
+        with mock.patch.dict(WACHE, {"wettbewerb": None}):
+            eintraege, _, _ = self.lauf(data)
+        self.assertEqual([e["gruppe"] for e in eintraege], ["Marathon", "Halb-Marathon", "Staffel"])
+
     def test_verschachtelt(self):
         data = {"#1_Gruppe": {"#2_Halbmarathon": [zeile(30)]}}
         eintraege, _, _ = self.lauf(data)

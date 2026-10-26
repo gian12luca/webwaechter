@@ -95,6 +95,8 @@ def zeilen_ablaufen(knoten, pfad=()):
 
 
 def gruppe_passt(pfad, wettbewerb, wettbewerb_id):
+    if not wettbewerb:
+        return True  # kein Filter: alles melden, die Meldung nennt den Wettbewerb
     if not pfad:
         return True  # ohne Gruppierung lässt sich nicht filtern: lieber melden als verpassen
     for teil in pfad:
@@ -113,8 +115,9 @@ def pruefe_raceresult(w):
     cfg = hole_json(f"{basis}/config?lang=de")
     listen = cfg["TabConfig"]["Lists"]
     liste = next((l for l in listen if l.get("ID") == w.get("liste_id")), listen[0])
+    wettbewerb = w.get("wettbewerb")
     wettbewerb_id = next(
-        (k for k, v in cfg.get("contests", {}).items() if v.lower() == w["wettbewerb"].lower()), None
+        (k for k, v in cfg.get("contests", {}).items() if wettbewerb and v.lower() == wettbewerb.lower()), None
     )
     params = {
         "key": cfg["key"], "listname": liste["Name"], "page": w["page"],
@@ -131,7 +134,7 @@ def pruefe_raceresult(w):
     roh = list(zeilen_ablaufen(daten.get("data")))
     eintraege = []
     for pfad, z in roh:
-        if not gruppe_passt(pfad, w["wettbewerb"], wettbewerb_id):
+        if not gruppe_passt(pfad, wettbewerb, wettbewerb_id):
             continue
         roh_id = z[i_id] if i_id is not None and i_id < len(z) else json.dumps(z)
         eintraege.append({
@@ -168,7 +171,7 @@ def pruefe_wache(w, dry_run):
     if stand.get("fehler"):
         print("  wieder erreichbar")
     stand["fehler"] = 0
-    print(f"  {roh_anzahl} Einträge in der Liste, {len(eintraege)} für «{w['wettbewerb']}»")
+    print(f"  {roh_anzahl} Einträge in der Liste, {len(eintraege)} für «{w.get('wettbewerb') or 'alle'}»")
 
     # Daten da, aber keine Zeile erkannt: Struktur hat sich geändert → einmal warnen
     if hat_daten and roh_anzahl == 0:
@@ -184,7 +187,8 @@ def pruefe_wache(w, dry_run):
     neu = [e for e in eintraege if e["id"] not in gesehen]
     for e in neu:
         datum = f" (eingestellt {e['datum']})" if e["datum"] else ""
-        melde(w["titel"], f"{w['name']}: neuer Eintrag{datum}. Schnell sein!", e["link"],
+        gruppe = f" – {e['gruppe']}" if e["gruppe"] else " – Wettbewerb unbekannt, bitte Link prüfen"
+        melde(w["titel"], f"{w['name']}: neuer Eintrag{gruppe}{datum}. Schnell sein!", e["link"],
               prio=5, tags=w.get("tags", []), dry_run=dry_run)
     # Gemerkt wird nur, was aktuell gelistet ist: verschwindet ein Platz und kommt wieder, gibt es erneut eine Meldung.
     stand["gesehen"] = sorted(e["id"] for e in eintraege)

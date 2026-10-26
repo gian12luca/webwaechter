@@ -6,7 +6,7 @@
 
 | ID | Was | bis |
 | --- | --- | --- |
-| `freiburg-2027-halbmarathon` | Startplatzbörse Freiburg Marathon 2027, nur Halbmarathon | 4.4.2027 |
+| `freiburg-2027-boerse` | Startplatzbörse Freiburg Marathon 2027, alle Wettbewerbe (Meldung nennt den Wettbewerb) | 4.4.2027 |
 
 ## Wie es funktioniert
 
