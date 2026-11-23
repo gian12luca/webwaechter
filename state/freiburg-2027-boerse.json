@@ -1,5 +1,7 @@
 {
   "fehler": 0,
-  "gesehen": [],
+  "gesehen": [
+    "67d048a6cdb32e27"
+  ],
   "strukturwarnung": false
 }
